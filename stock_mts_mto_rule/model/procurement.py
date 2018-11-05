@@ -19,6 +19,8 @@ class ProcurementOrder(models.Model):
     @api.multi
     def get_mto_qty_to_order(self):
         self.ensure_one()
+        if self.orderpoint_id:
+            return self.product_qty
         stock_location = self.rule_id.mts_rule_id.location_src_id.id
         proc_warehouse = self.with_context(location=stock_location)
         virtual_available = proc_warehouse.product_id.virtual_available
