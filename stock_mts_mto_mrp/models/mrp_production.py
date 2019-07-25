@@ -73,6 +73,37 @@ class MrpProduction(models.Model):
 
     @api.multi
     def _update_raw_move(self, bom_line, line_data):
-        res = super()._update_raw_move(bom_line, line_data)
+        """ :returns update_move, old_quantity, new_quantity """
+        quantity = line_data['qty']
+        self.ensure_one()
         self._update_unit_factor()
-        return res
+        move = self.move_raw_ids.filtered(
+            lambda x: x.bom_line_id.id == bom_line.id and x.state not in (
+                'done', 'cancel'))
+        if move:
+            old_qty = move[0].product_uom_qty
+            if quantity > 0:
+                move[0]._decrease_reserved_quanity(quantity)
+                move[0]._do_unreserve()
+                qty = self.env['stock.quant']._get_available_quantity(
+                    product_id=move[0].product_id,
+                    location_id=move[0].location_id)
+                if qty > quantity:
+                    qty = quantity
+                move[0].with_context(do_not_unreserve=True).write({
+                    'product_uom_qty': qty})
+                move[0]._recompute_state()
+                move[0]._action_assign()
+                move[0].unit_factor = (
+                    qty / move[0].raw_material_production_id.product_qty)
+            elif qty < 0:  # Do not remove 0 lines
+                if move[0].quantity_done > 0:
+                    raise UserError(
+                        _('Lines need to be deleted, but can not as you still'
+                            'have some quantities to consume in them. '))
+                move[0]._action_cancel()
+                move[0].unlink()
+            return move[0], old_qty, qty
+        else:
+            move = self._generate_raw_move(bom_line, line_data)
+            return move, 0, qty

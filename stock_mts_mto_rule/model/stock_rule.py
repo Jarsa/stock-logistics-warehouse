@@ -47,7 +47,7 @@ class StockRule(models.Model):
 
     def _run_split_procurement(self, product_id, product_qty, product_uom,
                                location_id, name, origin, values):
-
+        import ipdb; ipdb.set_trace()
         needed_qty = self.get_mto_qty_to_order(product_id, product_qty,
                                                product_uom, values)
 
