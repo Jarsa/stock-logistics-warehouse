@@ -45,7 +45,7 @@ class ChangeProductionQty(models.TransientModel):
             values = mw._prepare_procurement_values()
             procure_obj.run(
                 mw.product_id, mw.product_uom_qty, mw.product_uom,
-                mw.location_id, 'hola', production.name, values)
+                mw.location_id, 'MTS+MTO', production.name, values)
         return documents
 
     @api.multi

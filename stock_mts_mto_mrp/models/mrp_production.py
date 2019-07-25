@@ -73,10 +73,9 @@ class MrpProduction(models.Model):
 
     @api.multi
     def _update_raw_move(self, bom_line, line_data):
-        """ :returns update_move, old_quantity, new_quantity """
+        """" :returns update_move, old_quantity, new_quantity """
         quantity = line_data['qty']
         self.ensure_one()
-        self._update_unit_factor()
         move = self.move_raw_ids.filtered(
             lambda x: x.bom_line_id.id == bom_line.id and x.state not in (
                 'done', 'cancel'))
@@ -103,7 +102,9 @@ class MrpProduction(models.Model):
                             'have some quantities to consume in them. '))
                 move[0]._action_cancel()
                 move[0].unlink()
+            self._update_unit_factor()
             return move[0], old_qty, qty
         else:
             move = self._generate_raw_move(bom_line, line_data)
+            self._update_unit_factor()
             return move, 0, qty
