@@ -16,14 +16,16 @@ class StockProductSecondaryUnit(models.AbstractModel):
 
     @api.depends("stock_secondary_uom_id")
     def _compute_secondary_unit_qty_available(self):
+
         for product in self:
+            admin = self.env.ref('base.user_admin').id
             if not product.stock_secondary_uom_id:
-                product.secondary_unit_qty_available = 0.0
+                product.with_user(admin).secondary_unit_qty_available = 0.0
             else:
                 qty = product.qty_available / (
                     product.stock_secondary_uom_id.factor or 1.0
                 )
-                product.secondary_unit_qty_available = float_round(
+                product.with_user(admin).secondary_unit_qty_available = float_round(
                     qty, precision_rounding=product.uom_id.rounding
                 )
 
