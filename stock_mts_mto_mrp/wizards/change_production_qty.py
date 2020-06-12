@@ -9,7 +9,12 @@ class ChangeProductionQty(models.TransientModel):
 
     @api.multi
     def change_prod_qty(self):
-        move_orig = self.mo_id.move_raw_ids[0].move_orig_ids
+        origs = {}
+        for move_raw in self.mo_id.move_raw_ids:
+            origs[str(move_raw.product_id.id)] = {
+                'move_orig_ids': move_raw.move_orig_ids,
+                'old_qty': move_raw.product_uom_qty,
+            }
         moves = self.mo_id.mapped('move_raw_ids').filtered(
             lambda m: m.procure_method == 'make_to_order')
         move_lines = moves.mapped('move_line_ids')
@@ -23,7 +28,7 @@ class ChangeProductionQty(models.TransientModel):
         res = super().change_prod_qty()
         # If a MTO move was deleted, the method change_prod_qty creates a new
         # move for the component, but it's in draft state and cannot be
-        # reserved, we need to confirm the stock.move 
+        # reserved, we need to confirm the stock.move
         moves = self.mo_id.move_raw_ids.filtered(
             lambda l: l.state == 'draft')._action_confirm()
         production = self.mo_id
@@ -41,12 +46,15 @@ class ChangeProductionQty(models.TransientModel):
             picking_type=production.bom_id.picking_type_id)
         documents = {}
         picking_obj = self.env['stock.picking']
-        move = self.mo_id.move_raw_ids
         for line, line_data in lines:
+            move = production.move_raw_ids.filtered(
+                    lambda x: x.bom_line_id.id == line.id and
+                    x.state not in ('done', 'cancel'))
             if move:
                 move = move[0]
-                move.move_orig_ids = move_orig
-                old_qty = move.product_uom_qty - move.reserved_availability
+                orig = origs[str(move.product_id.id)]
+                move.move_orig_ids = orig['move_orig_ids']
+                old_qty = orig['old_qty'] - move.reserved_availability
             else:
                 old_qty = 0
             iterate_key = production._get_document_iterate_key(move)
@@ -59,6 +67,4 @@ class ChangeProductionQty(models.TransientModel):
                     else:
                         documents[key] = [value]
         production._log_manufacture_exception(documents)
-        for move_raw in production.move_raw_ids:
-            move_raw.move_orig_ids = False
         return res
