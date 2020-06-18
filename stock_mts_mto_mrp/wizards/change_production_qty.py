@@ -10,6 +10,7 @@ class ChangeProductionQty(models.TransientModel):
     @api.multi
     def change_prod_qty(self):
         origs = {}
+        move_orig = self.mo_id.move_raw_ids[0].move_orig_ids
         for move_raw in self.mo_id.move_raw_ids:
             origs[str(move_raw.product_id.id)] = {
                 'move_orig_ids': move_raw.move_orig_ids,
@@ -48,23 +49,33 @@ class ChangeProductionQty(models.TransientModel):
         picking_obj = self.env['stock.picking']
         for line, line_data in lines:
             move = production.move_raw_ids.filtered(
-                    lambda x: x.bom_line_id.id == line.id and
-                    x.state not in ('done', 'cancel'))
+                lambda x: x.bom_line_id.id == line.id and
+                x.state not in ('done', 'cancel'))
             if move:
                 move = move[0]
                 orig = origs[str(move.product_id.id)]
                 move.move_orig_ids = orig['move_orig_ids']
-                old_qty = orig['old_qty'] - move.reserved_availability
             else:
-                old_qty = 0
+                move.move_orig_ids = move_orig
             iterate_key = production._get_document_iterate_key(move)
-            if iterate_key:
-                document = picking_obj._log_activity_get_documents(
-                    {move: (line_data['qty'], old_qty)}, iterate_key, 'UP')
-                for key, value in document.items():
-                    if documents.get(key):
-                        documents[key] += [value]
-                    else:
-                        documents[key] = [value]
+            qual_loc = self.env.ref('__export__.stock_location_34_b81a4181').id
+            for sm in self.mo_id.picking_ids.filtered(
+                lambda p: p.location_dest_id.id in [qual_loc]).mapped(
+                    'move_ids_without_package'):
+                sm_dict = {sm: (move[0].product_uom_qty - move[0].
+                                reserved_availability, sm.product_uom_qty)}
+                production._log_downside_manufactured_quantity(sm_dict)
+            pc_move = self.mo_id.picking_ids.mapped(
+                'move_ids_without_package').filtered(
+                lambda m: m.product_id.id == move.
+                product_id.id and m.location_dest_id.id == qual_loc)
+            document = picking_obj._log_activity_get_documents(
+                {move: (line_data['qty'], pc_move.product_uom_qty)},
+                iterate_key, 'UP')
+            for key, value in document.items():
+                if documents.get(key):
+                    documents[key] += [value]
+                else:
+                    documents[key] = [value]
         production._log_manufacture_exception(documents)
         return res
