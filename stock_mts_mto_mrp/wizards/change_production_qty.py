@@ -46,6 +46,7 @@ class ChangeProductionQty(models.TransientModel):
             production.product_id, factor,
             picking_type=production.bom_id.picking_type_id)
         documents = {}
+        sm_dict = {}
         picking_obj = self.env['stock.picking']
         for line, line_data in lines:
             move = production.move_raw_ids.filtered(
@@ -59,23 +60,22 @@ class ChangeProductionQty(models.TransientModel):
                 move.move_orig_ids = move_orig
             iterate_key = production._get_document_iterate_key(move)
             qual_loc = self.env.ref('__export__.stock_location_34_b81a4181').id
-            for sm in self.mo_id.picking_ids.filtered(
-                lambda p: p.location_dest_id.id in [qual_loc]).mapped(
-                    'move_ids_without_package'):
-                sm_dict = {sm: (move[0].product_uom_qty - move[0].
-                                reserved_availability, sm.product_uom_qty)}
-                production._log_downside_manufactured_quantity(sm_dict)
             pc_move = self.mo_id.picking_ids.mapped(
                 'move_ids_without_package').filtered(
-                lambda m: m.product_id.id == move.
-                product_id.id and m.location_dest_id.id == qual_loc)
-            document = picking_obj._log_activity_get_documents(
-                {move: (line_data['qty'], pc_move.product_uom_qty)},
-                iterate_key, 'UP')
-            for key, value in document.items():
-                if documents.get(key):
-                    documents[key] += [value]
-                else:
-                    documents[key] = [value]
+                lambda m: m.location_dest_id.id == qual_loc)
+            for pcm in pc_move:
+                for sm in production.move_raw_ids:
+                    if sm.product_id == pcm.product_id:
+                        sm_dict.update({pcm: (sm.product_uom_qty, pcm.product_uom_qty)})
+                if move.product_id == pcm.product_id:
+                    document = picking_obj._log_activity_get_documents(
+                        {move: (line_data['qty'], pcm.product_uom_qty)},
+                        iterate_key, 'UP')
+                    for key, value in document.items():
+                        if documents.get(key):
+                            documents[key] += [value]
+                        else:
+                            documents[key] = [value]
+        production._log_downside_manufactured_quantity(sm_dict)
         production._log_manufacture_exception(documents)
         return res
