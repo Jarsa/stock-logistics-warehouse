@@ -57,7 +57,7 @@ class ChangeProductionQty(models.TransientModel):
                 orig = origs[str(move.product_id.id)]
                 move.move_orig_ids = orig['move_orig_ids']
             else:
-                move.move_orig_ids = move_orig
+                move = move_orig
             iterate_key = production._get_document_iterate_key(move)
             warehouse = self.env.ref('stock.warehouse0')
             qual_loc = warehouse.pbm_type_id.default_location_dest_id.id
