@@ -32,7 +32,7 @@ class StockRequestOrder(models.Model):
             req.purchase_count = len(req.purchase_ids)
 
     def action_view_purchase(self):
-        action = self.env.ref("purchase.purchase_order_action_generic").read()[0]
+        action = self.env.ref("purchase.purchase_rfq").read()[0]
         purchases = self.mapped("purchase_ids")
         if len(purchases) > 1:
             action["domain"] = [("id", "in", purchases.ids)]
