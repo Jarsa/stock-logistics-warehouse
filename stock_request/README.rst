@@ -23,7 +23,7 @@ Stock Request
     :target: https://translation.odoo-community.org/projects/stock-logistics-warehouse-15-0/stock-logistics-warehouse-15-0-stock_request
     :alt: Translate me on Weblate
 .. |badge5| image:: https://img.shields.io/badge/runboat-Try%20me-875A7B.png
-    :target: https://runboat.odoo-community.org/builds?repo=OCA/stock-logistics-warehouse&target_branch=15.0
+    :target: https://runboat.odoo-community.org/webui/builds.html?repo=OCA/stock-logistics-warehouse&target_branch=15.0
     :alt: Try me on Runboat
 
 |badge1| |badge2| |badge3| |badge4| |badge5|
@@ -56,6 +56,12 @@ Request / Manager'.
 ## Group Stock Request / Manager
 
 * Can fully manage all Stock Requests
+
+## Configure routes to be selected in Stock Requests
+
+* Go to Inventory > Settings > Routes
+* Select the routes that you want to be available in Stock Requests
+* Allow the route to be selecable in Stock Requests Lines
 
 Usage
 =====
