@@ -12,7 +12,6 @@
                     name="secondary_uom_qty"
                     readonly="state in ['done', 'cancel'] and is_locked"
                     force_save="1"
-                    groups="uom.group_uom"
                     optional="show"
                 />
                 <field
@@ -22,7 +21,6 @@
                                          ('product_id', '=', False)] or [(0, '=', 1)]"
                     readonly="state != 'draft' and id"
                     options="{'no_create': True}"
-                    groups="uom.group_uom"
                     optional="show"
                 />
             </field>
@@ -41,7 +39,6 @@
                     name="secondary_uom_qty"
                     readonly="state in ['done', 'cancel'] and is_locked"
                     force_save="1"
-                    groups="uom.group_uom"
                     optional="show"
                 />
                 <field
@@ -51,7 +48,6 @@
                                          ('product_id', '=', False)] or [(0, '=', 1)]"
                     readonly="state != 'draft' and id"
                     options="{'no_create': True}"
-                    groups="uom.group_uom"
                     optional="show"
                 />
             </field>
