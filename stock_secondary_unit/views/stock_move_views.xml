@@ -12,6 +12,7 @@
                     name="secondary_uom_qty"
                     readonly="state in ['done', 'cancel'] and is_locked"
                     force_save="1"
+                    groups="uom.group_uom"
                     optional="show"
                 />
                 <field
@@ -19,8 +20,9 @@
                     domain="product_id and ['|', ('product_id', '=', product_id),
                                 '&amp;', ('product_tmpl_id.product_variant_ids', 'in', [product_id]),
                                          ('product_id', '=', False)] or [(0, '=', 1)]"
-                    attrs="{'readonly': [('state', '!=', 'draft'), ('id', '!=', False)]}"
+                    readonly="state != 'draft' and id"
                     options="{'no_create': True}"
+                    groups="uom.group_uom"
                     optional="show"
                 />
             </field>
@@ -39,6 +41,7 @@
                     name="secondary_uom_qty"
                     readonly="state in ['done', 'cancel'] and is_locked"
                     force_save="1"
+                    groups="uom.group_uom"
                     optional="show"
                 />
                 <field
@@ -46,8 +49,9 @@
                     domain="product_id and ['|', ('product_id', '=', product_id),
                                 '&amp;', ('product_tmpl_id.product_variant_ids', 'in', [product_id]),
                                          ('product_id', '=', False)] or [(0, '=', 1)]"
-                    attrs="{'readonly': [('state', '!=', 'draft'), ('id', '!=', False)]}"
+                    readonly="state != 'draft' and id"
                     options="{'no_create': True}"
+                    groups="uom.group_uom"
                     optional="show"
                 />
             </field>

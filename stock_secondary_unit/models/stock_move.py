@@ -23,9 +23,18 @@ class StockMove(models.Model):
     def _compute_product_uom_qty(self):
         self._compute_helper_target_field_qty()
 
-    @api.onchange("product_uom")
-    def onchange_product_uom_for_secondary(self):
-        self._onchange_helper_product_uom_for_secondary()
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            product = self.env["product.product"].browse(vals.get("product_id", False))
+            if product:
+                vals.update(
+                    {
+                        "secondary_uom_id": product.stock_secondary_uom_id.id
+                        or product.product_tmpl_id.stock_secondary_uom_id.id,
+                    }
+                )
+        return super().create(vals_list)
 
     @api.model
     def _prepare_merge_moves_distinct_fields(self):
@@ -58,6 +67,6 @@ class StockMoveLine(models.Model):
                 vals["secondary_uom_id"] = move.secondary_uom_id.id
         return super().create(vals_list)
 
-    @api.depends("secondary_uom_id", "secondary_uom_qty")
+    @api.depends("secondary_uom_id", "secondary_uom_qty", "quant_id")
     def _compute_qty_done(self):
         self._compute_helper_target_field_qty()

@@ -12,6 +12,7 @@
                     <field
                         name="stock_secondary_uom_id"
                         options="{'no_create': True}"
+                        groups="stock.group_stock_user"
                     />
                 </group>
             </xpath>
@@ -25,8 +26,8 @@
         />
         <field name="arch" type="xml">
             <xpath
-                expr="//button[@name='action_view_stock_move_lines']"
-                position="before"
+                expr="//button[@name='action_update_quantity_on_hand']"
+                position="after"
             >
                 <button
                     type="object"
