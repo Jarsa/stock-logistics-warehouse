@@ -70,15 +70,15 @@ Authors
 Contributors
 ------------
 
-- `Tecnativa <https://www.tecnativa.com>`__
+-  `Tecnativa <https://www.tecnativa.com>`__
 
-  - Carlos Dauden
-  - Sergio Teruel
-  - Carlos Roca
+   -  Carlos Dauden
+   -  Sergio Teruel
+   -  Carlos Roca
 
-- Kitti Upariphutthiphong <kittiu@ecosoft.co.th>
-- Pimolnat Suntian <pimolnats@ecosoft.co.th>
-- Alan Ramos <alan.ramos@jarsa.com.mx>
+-  Kitti Upariphutthiphong <kittiu@ecosoft.co.th>
+-  Pimolnat Suntian <pimolnats@ecosoft.co.th>
+-  Alan Ramos <alan.ramos@jarsa.com.mx>
 
 Maintainers
 -----------
