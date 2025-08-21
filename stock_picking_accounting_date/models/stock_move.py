@@ -32,6 +32,11 @@ class StockMove(models.Model):
             am_vals.update({"date": self.picking_id.accounting_date})
         return am_vals
 
+    def _get_currency_convert_date(self):
+        if self.picking_id.accounting_date:
+            return self.picking_id.accounting_date
+        return super()._get_currency_convert_date()
+
     def _get_price_unit(self):
         """Returns the unit price for the move"""
         self.ensure_one()
