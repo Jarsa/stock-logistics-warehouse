@@ -21,6 +21,6 @@ class StockPicking(models.Model):
             if pick.move_ids_without_package.with_company(
                 pick.company_id
             ).product_id.filtered(
-                lambda x: x.detailed_type == "product" and x.valuation == "real_time"
+                lambda x: x.is_storable and x.valuation == "real_time"
             ):
                 pick.show_accounting_date = True
